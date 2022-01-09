@@ -20,14 +20,16 @@ connect_db(app)
 
 @app.route("/")
 def homepage():
-    """Homepage of site; redirect to register."""
+    """Redirect to /register."""
 
     return redirect("/register")
 
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    """Register a user: produce form and handle form submission."""
+    """Show a form that when submitted will register/create a user.
+    Process the registration form by adding a new user.
+    """
 
     if "username" in session:
         return redirect(f"/users/{session['username']}")
@@ -54,7 +56,9 @@ def register():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    """Produce login form or handle login."""
+    """Show a form that when submitted will login a user.
+    Process the login form, ensuring the user is authenticated.
+    """
 
     if "username" in session:
         return redirect(f"/users/{session['username']}")
@@ -78,7 +82,8 @@ def login():
 
 @app.route("/logout")
 def logout():
-    """Logout route."""
+    """Clear any information from the session and 
+    redirect to /."""
 
     session.pop("username")
     return redirect("/login")
@@ -86,7 +91,8 @@ def logout():
 
 @app.route("/users/<username>")
 def show_user(username):
-    """Example page for logged-in-users."""
+    """Display a template the shows information 
+    about that user (everything except for their password)."""
 
     if "username" not in session or username != session['username']:
         raise Unauthorized()
@@ -99,7 +105,8 @@ def show_user(username):
 
 @app.route("/users/<username>/delete", methods=["POST"])
 def remove_user(username):
-    """Remove user nad redirect to login."""
+    """Remove the user from the database and 
+    make sure to also delete all of their feedback."""
 
     if "username" not in session or username != session['username']:
         raise Unauthorized()
@@ -114,7 +121,9 @@ def remove_user(username):
 
 @app.route("/users/<username>/feedback/new", methods=["GET", "POST"])
 def new_feedback(username):
-    """Show add-feedback form and process it."""
+    """Display a form to add feedback.
+    Add a new piece of feedback 
+    and redirect to /users/<username>."""
 
     if "username" not in session or username != session['username']:
         raise Unauthorized()
@@ -142,7 +151,9 @@ def new_feedback(username):
 
 @app.route("/feedback/<int:feedback_id>/update", methods=["GET", "POST"])
 def update_feedback(feedback_id):
-    """Show update-feedback form and process it."""
+    """Display a form to edit feedback.
+    Update a specific piece of feedback 
+    and redirect to /users/<username>."""
 
     feedback = Feedback.query.get(feedback_id)
 
@@ -164,7 +175,8 @@ def update_feedback(feedback_id):
 
 @app.route("/feedback/<int:feedback_id>/delete", methods=["POST"])
 def delete_feedback(feedback_id):
-    """Delete feedback."""
+    """Delete a specific piece of feedback 
+    and redirect to /users/<username>."""
 
     feedback = Feedback.query.get(feedback_id)
     if "username" not in session or feedback.username != session['username']:
